@@ -90,7 +90,7 @@ def draw_centers(centers, image):
 
 if __name__ == "__main__":
     # Camera ID to read video from (numbered from 0)
-    camera_id = 0
+    camera_id = 0 # Linux = 0; Mac = 2
     dev = open_camera(camera_id) # open the camera as a video capture device
  
     while True:
