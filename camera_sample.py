@@ -9,16 +9,19 @@ import cv2
 import time
 import numpy
 import os
+import pytesseract
  
+# Set up Tesseract configuration for single character detection
+tesseract_config = '--psm 10 -c tessedit_char_whitelist=H'  # --psm 10: treat as single character, whitelist 'H'
+
 ##
-# Opens a video capture device with a resolution of 800x600
-# at 30 FPS.
+# Opens a video capture device with a resolution of 800x600 at 30 FPS.
 ##
-def open_camera(cam_id = 1):
+def open_camera(cam_id = 0):
     cap = cv2.VideoCapture(cam_id)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-    cap.set(cv2.CAP_PROP_FPS, 24)
+    cap.set(cv2.CAP_PROP_FPS, 10)
     return cap
  
 ##
@@ -40,8 +43,7 @@ def cleanup(cam_id = 0):
     cv2.VideoCapture(cam_id).release()
  
 ##
-# Creates a new RGB image of the specified size, initially
-# filled with black.
+# Creates a new RGB image of the specified size, initially filled with black.
 ##
 def new_rgb_image(width, height):
     image = numpy.zeros( (height, width, 3), numpy.uint8)
@@ -86,7 +88,14 @@ def find_centers(contours):
 def draw_centers(centers, image):
     for center in centers:
         cv2.circle(image, tuple(center), 20, (255,255,0), 2)
-########### Main Program ###########
+
+def find_edges(img_gaussian):
+    img_sobelx = cv2.Sobel(img_gaussian,cv2.CV_8U,1,0,ksize=5)
+    img_sobely = cv2.Sobel(img_gaussian,cv2.CV_8U,0,1,ksize=5)
+    img_sobel = img_sobelx + img_sobely
+
+    return img_sobel
+    ########### Main Program ###########
 
 if __name__ == "__main__":
     # Camera ID to read video from (numbered from 0)
@@ -98,21 +107,27 @@ if __name__ == "__main__":
         if img_orig is not None: # if we did get an image
             cv2.imshow("video", img_orig) # display the image in a window named "video"
             img_gray = rgb_to_gray(img_orig) # Convert img_orig from video camera from RGB to Grayscale
+
+            # Apply GaussianBlur to reduce noise
+            blurred = cv2.GaussianBlur(img_gray, (9, 9), 0)
  
-            # Converts grayscale image to a binary image with a threshold value of 220. Any pixel with an
-            # intensity of <= 220 will be black, while any pixel with an intensity > 220 will be white:
-            (thresh, img_threshold) = do_threshold(img_gray, 220)
+            #  Any pixel with an intensity of <= 220 will be black, while any pixel with an intensity > 220 will be white:
+            # (thresh, img_threshold) = do_threshold(blurred, 180)
             
-            # cv2.imshow("Grayscale", img_gray)
+            # Apply edge detection to locate the keyboard
+            edges = cv2.Canny(blurred, 70, 150)
+            # edges = find_edges(blurred)
+            # cv2.imshow("Grayscale", blurred)
             # cv2.imshow("Threshold", img_threshold)
-            # the following code will find the contours of your image:
-            contours = find_contours(img_threshold)
+            # find the contours of image:
+            contours = find_contours(edges)
             
             # Here, we are creating a new RBB image to display our results on
-            results_image = new_rgb_image(img_threshold.shape[1], img_threshold.shape[0])
-            color = (0, 0, 255)
+            # results_image = new_rgb_image(img_threshold.shape[1], img_threshold.shape[0])
+            results_image = new_rgb_image(blurred.shape[1], blurred.shape[0])
+            color = (0, 0, 250)
             cv2.drawContours(results_image, contours, -1, color, 2)
-            
+                        
             # Display Results
             cv2.imshow("results", results_image)
         else: # if we failed to capture (camera disconnected?), then quit
