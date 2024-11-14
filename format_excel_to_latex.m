@@ -18,7 +18,7 @@ function excelToLatexTable(filename, solutionType, outputFile)
     latexTable = latexTable + "%% Generated using the format_excel_to_latex.m matlab script \n"; 
     latexTable = latexTable + "\\centering\n";
     latexTable = latexTable + "\t\\begin{tabular} \n\t\t{l|c|c|c|c} \n";
-    latexTable = latexTable + "\t\t\\textbf{$q^{(j)}$} & \\textbf{q1} & \\textbf{q2} & \\textbf{q3} & \\textbf{q4 } \\\\ ";
+    latexTable = latexTable + "\t\t$q^{(j)}$ & $q_1^{(j)}$ & $q_2^{(j)}$ & $q_3^{(j)}$ & $q_4^{(j)}$ \\\\ ";
     latexTable = latexTable + "\\hline\n";
 
     % Loop through filtered data and format each row
@@ -38,7 +38,7 @@ function excelToLatexTable(filename, solutionType, outputFile)
     latexTable = latexTable + "\t\\end{tabular}\n";
     latexTable = latexTable + "\\caption{Robot configurations for points $q^j$ along circle $p^j$.}\n";
     latexTable = latexTable + "\\label{circle-configurations}\n";
-    latexTable = latexTable + "\n\\end{table}\n";
+    latexTable = latexTable + "\\end{table}\n";
     
     % Write the LaTeX table to the output file
     fileID = fopen(outputFile, 'w');
