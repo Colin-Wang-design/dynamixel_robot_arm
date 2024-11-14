@@ -52,6 +52,11 @@ from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 ADDR_MX_TORQUE_ENABLE      = 24               # Control table address is different in Dynamixel model
 ADDR_MX_GOAL_POSITION      = 30
 ADDR_MX_PRESENT_POSITION   = 36
+ADDR_MX_CW_COMPLIANCE_MARGIN = 26
+ADDR_MX_CCW_COMPLIANCE_MARGIN = 27
+ADDR_MX_CW_COMPLIANCE_SLOPE = 28
+ADDR_MX_CCW_COMPLIANCE_SLOPE = 29
+ADDR_MX_MOVING_SPEED = 32
 
 # Protocol version
 PROTOCOL_VERSION            = 1.0               # See which protocol version is used in the Dynamixel
@@ -67,11 +72,7 @@ TORQUE_DISABLE              = 0                 # Value for disabling the torque
 DXL_MINIMUM_POSITION_VALUE  = 100           # Dynamixel will rotate between this value
 DXL_MAXIMUM_POSITION_VALUE  = 500            # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
 DXL_MOVING_STATUS_THRESHOLD = 20                # Dynamixel moving status threshold
-ADDR_MX_CW_COMPLIANCE_MARGIN = 26
-ADDR_MX_CCW_COMPLIANCE_MARGIN = 27
-ADDR_MX_CW_COMPLIANCE_SLOPE = 28
-ADDR_MX_CCW_COMPLIANCE_SLOPE = 29
-ADDR_MX_MOVING_SPEED = 15
+
 
 index = 0
 dxl_goal_position = [DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE]         # Goal position
