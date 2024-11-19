@@ -1,4 +1,4 @@
-fpath = 'joint_angles_with_pos.xlsx'; % Specifiy path to excel file here
+fpath = 'joint_angles.xlsx'; % Specifiy path to excel file here
 excelToLatexTable(fpath, 'positive', 'latex_table_output.txt');
 
 function excelToLatexTable(filename, solutionType, outputFile)
