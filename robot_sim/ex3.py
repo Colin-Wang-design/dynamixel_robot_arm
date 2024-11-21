@@ -28,8 +28,8 @@ for point in circle_points:
 # Prepare data for export
 data = []
 for i, (results_pos, results_neg) in enumerate(joint_angles_list):
-    data.append([i+1, 'positive', *results_pos])
-    data.append([i+1, 'negative', *results_neg])
+    data.append([i, 'positive', *results_pos])
+    data.append([i, 'negative', *results_neg])
 
 # Create a DataFrame
 df = pd.DataFrame(data, columns=['Point', 'Solution', 'q1', 'q2', 'q3', 'q4'])
@@ -38,19 +38,19 @@ df = pd.DataFrame(data, columns=['Point', 'Solution', 'q1', 'q2', 'q3', 'q4'])
 df.to_excel('./joint_angles.xlsx', index=False)
 
 # Print the joint angles for each point
-for i, (results_pos, results_neg) in enumerate(joint_angles_list):
-    print(f"Point {i+1}:")
-    print("Results in radians (positive q3):")
-    print("q1: ", results_pos[0])
-    print("q2: ", results_pos[1])
-    print("q3: ", results_pos[2])
-    print("q4: ", results_pos[3])
-    print("Results in radians (negative q3):")
-    print("q1: ", results_neg[0])
-    print("q2: ", results_neg[1])
-    print("q3: ", results_neg[2])
-    print("q4: ", results_neg[3])
-    print()
+# for i, (results_pos, results_neg) in enumerate(joint_angles_list):
+#     print(f"Point {i}:")
+#     print("Results in radians (positive q3):")
+#     print("q1: ", results_pos[0])
+#     print("q2: ", results_pos[1])
+#     print("q3: ", results_pos[2])
+#     print("q4: ", results_pos[3])
+#     print("Results in radians (negative q3):")
+#     print("q1: ", results_neg[0])
+#     print("q2: ", results_neg[1])
+#     print("q3: ", results_neg[2])
+#     print("q4: ", results_neg[3])
+#     print()
 
 # # Set up the figure for animation
 # fig = plt.figure()
