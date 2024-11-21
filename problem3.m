@@ -1,5 +1,5 @@
 fpath = 'joint_angles.xlsx'; % Specifiy path to excel file here
-excelToLatexTable(fpath, 'positive', 'latex_table_output.txt');
+excelToLatexTable(fpath, 'positive', 'problem3-latex.txt');
 
 function excelToLatexTable(filename, solutionType, outputFile)
     % Reads the Excel file, filters based on solutionType, and creates a LaTeX table.
