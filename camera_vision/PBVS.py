@@ -19,7 +19,7 @@ parser.add_argument('-sg', '--show_gui', default=True, type=bool,
 	help='Shows the gui to reach the desired pose of the ArUco marker')
 args = parser.parse_args()
 
-MARKER_SIZE = 100 # milimeters
+MARKER_SIZE = 10 # milimeters
 RED = (0, 0, 255)
 GREEN = (0, 255, 0)
 BLUE = (255, 0, 0)

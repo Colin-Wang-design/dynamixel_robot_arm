@@ -3,6 +3,20 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 
+# Real-world diameter of the M&M in meters
+D = 0.0104 
+
+# Print the camera Matrix
+# b = np.load('//home/depei/Robotics/dynamixel_robot_arm/camera_vision/bin/camera_0_calibration.npz')
+# print(b['camera_matrix']) #,b['dist'],b['rvecs'],b['tvecs'] 'camera_matrix', 'dist', 'rvecs', and 'tvecs'
+
+# Load the camera calibration data
+calibration_data = np.load('camera_vision/bin/camera_0_calibration.npz')
+camera_matrix = calibration_data['camera_matrix']
+dist_coeffs = calibration_data['dist']
+rvecs = calibration_data['rvecs']
+tvecs = calibration_data['tvecs']
+
 img = cv2.imread('mnms.jpg')
 # Changing the order from bgr to rgb so that matplotlib can show it
 b,g,r = cv2.split(img)
@@ -44,22 +58,58 @@ img2 = img.copy()
 centers = []
 
 if circles is not None:
-    print(f"Type of circles: {type(circles)}")
-    # Check the shape of circles
-    print(f"Shape of circles: {circles.shape}")  # Expecting shape (1, n, 3)
+    circles = np.uint16(np.around(circles[0]))  # Access the first batch and round
     
-    if circles.shape[0] > 0:  # Ensure there is at least one circle detected
-        circles = np.round(circles[0, :]).astype(np.int32)  # Accessing the first element
+    for circle in circles:
+        x_c, y_c, r_image = circle  # Unpack x, y, and radius
+        centers.append((x_c, y_c))
         
-        for circle in circles:
-            center = (circle[0], circle[1])
-            centers.append(center)
-            r = circle[2]
+        # Draw the circle on the image
+        center = (x_c, y_c)
+        cv2.circle(img2, center, r_image, (255, 255, 0), 2)
+        
+        # Define the 3D point in real-world space
+        # object_point = np.array([[0, 0, 0]], dtype=np.float32)  # Center of the M&M
+        
+        # Estimate depth (Z) using the apparent radius
+        Z = (camera_matrix[0, 0] * D) / (2 * r_image)  # f_x is camera_matrix[0, 0]
 
-            # Draw the circle on the image
-            cv2.circle(img2, center, r, (255, 255, 0), 2)
-    else:
-        print("No circles found in the detected array.")
+        # Approximate a circle in 3D space for the M&M
+        object_points_3D = []
+        num_points = 10  # Number of points to approximate the circle
+        radius_real_world = D / 2  # Real-world radius of the M&M
+        for i in range(num_points):
+            angle = 2 * np.pi * i / num_points
+            x = radius_real_world * np.cos(angle)
+            y = radius_real_world * np.sin(angle)
+            z = 0  # Circle is in the plane z = 0
+            object_points_3D.append([x, y, z])
+        object_points_3D = np.array(object_points_3D, dtype=np.float32)
+
+        # Corresponding 2D image points (detected circle in the image)
+        image_points_2D = []
+        for i in range(num_points):
+            angle = 2 * np.pi * i / num_points
+            x = x_c + r_image * np.cos(angle)
+            y = y_c + r_image * np.sin(angle)
+            image_points_2D.append([x, y])
+        image_points_2D = np.array(image_points_2D, dtype=np.float32)
+
+        
+        # SolvePnP to find the translation vector
+        _, rvec, tvec = cv2.solvePnP(
+            object_points_3D,
+            image_points_2D,
+            camera_matrix,
+            dist_coeffs,
+            useExtrinsicGuess=False
+        )
+        
+        # Translation vector
+        translation_vector = tvec.flatten()
+        print(f"Circle at ({x_c}, {y_c}) -> Translation Vector: {translation_vector}")
+else:
+    print("No circles found in the detected array.")
     
 plt.imshow(img2)
 plt.show()
