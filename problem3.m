@@ -1,3 +1,38 @@
+R = 32;
+p_center = [150, 0, 120];
+phi_values = linspace(0, 2 * pi, 37);
+
+% Calculate circle points
+circle_points = zeros(length(phi_values), 3);
+for i = 1:length(phi_values)
+    phi = phi_values(i);
+    circle_points(i, :) = p_center + R * [0, cos(phi), sin(phi)];
+end
+clf;
+close all;
+% Extract x, y, z coordinates
+x = circle_points(:, 1);
+y = circle_points(:, 2);
+z = circle_points(:, 3);
+
+% Plot the circle
+figure;
+plot3(x, y, z, '-o', 'LineWidth', 2, 'MarkerSize', 5);
+hold on;
+grid on;
+xlabel('X [mm]');
+ylabel('Y [mm]');
+zlabel('Z [mm]');
+title('3D Circle Plot');
+%axis equal;
+
+% Plot center point
+plot3(p_center(1), p_center(2), p_center(3), 'r*', 'MarkerSize', 10);
+legend('Circle', 'Center Point', 'Location', 'northeast');
+
+
+
+%%
 fpath = 'joint_angles.xlsx'; % Specifiy path to excel file here
 excelToLatexTable(fpath, 'positive', 'problem3-latex.txt');
 
