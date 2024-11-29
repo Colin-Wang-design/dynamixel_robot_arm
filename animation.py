@@ -5,7 +5,7 @@ import openpyxl
 
 # Load the sequence of moves from two Excel files
 wb1 = openpyxl.load_workbook('data/test.xlsx')
-wb2 = openpyxl.load_workbook('data/joint_angles_neg.xlsx')
+wb2 = openpyxl.load_workbook('data/joint_angles_neg_good.xlsx')
 
 sheet1 = wb1.active
 sheet2 = wb2.active
