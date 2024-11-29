@@ -209,7 +209,7 @@ if __name__ == "__main__":
                 if obj is not None:
                     for o in obj:
                         # Object to base frame trans-vector
-                        translation_vector = get_base_coordinate(translation_vector=o[3])
+                        stylus,translation_vector = get_base_coordinate(translation_vector=o[3])
                         print(f"Circle: ({o[1][0][0]}, {o[1][0][1]}) -> T-Vector: {translation_vector}")#    
                     print(" ")# Gap between every loop                         
                 else:

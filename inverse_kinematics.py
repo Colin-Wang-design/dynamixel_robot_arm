@@ -55,40 +55,41 @@ def calculate_joint_angles(x0, y0, z0, gamma):
 
     return (q1, q2_pos, q3_pos, q4_pos), (q1, q2_neg, q3_neg, q4_neg)
 
-# Test the function with sample inputs (user can modify the values)
-x0_test = 150
-y0_test = 0
-z0_test = 152
-gamma_deg = 0
-gamma = np.deg2rad(gamma_deg)
+if __name__ == "__main__":
+    # Test the function with sample inputs (user can modify the values)
+    x0_test = 150
+    y0_test = 0
+    z0_test = 152
+    gamma_deg = 0
+    gamma = np.deg2rad(gamma_deg)
 
 
 
 
-results_pos, results_neg = calculate_joint_angles(x0_test, y0_test, z0_test, gamma)
+    results_pos, results_neg = calculate_joint_angles(x0_test, y0_test, z0_test, gamma)
 
-# # in radians
-# print("Results in radians (positive q3):")
-# print("q1: ", results_pos[0])
-# print("q2: ", results_pos[1])
-# print("q3: ", results_pos[2])
-# print("q4: ", results_pos[3])
+    # # in radians
+    # print("Results in radians (positive q3):")
+    # print("q1: ", results_pos[0])
+    # print("q2: ", results_pos[1])
+    # print("q3: ", results_pos[2])
+    # print("q4: ", results_pos[3])
 
-print("\nResults in radians (negative q3):")
-print("q1: ", results_neg[0])
-print("q2: ", results_neg[1])
-print("q3: ", results_neg[2])
-print("q4: ", results_neg[3])
+    print("\nResults in radians (negative q3):")
+    print("q1: ", results_neg[0])
+    print("q2: ", results_neg[1])
+    print("q3: ", results_neg[2])
+    print("q4: ", results_neg[3])
 
-# # in degrees
-# print("\nResults in degrees (positive q3):")
-# print("q1: ", np.degrees(results_pos[0]))
-# print("q2: ", np.degrees(results_pos[1]))
-# print("q3: ", np.degrees(results_pos[2]))
-# print("q4: ", np.degrees(results_pos[3]))
+    # # in degrees
+    # print("\nResults in degrees (positive q3):")
+    # print("q1: ", np.degrees(results_pos[0]))
+    # print("q2: ", np.degrees(results_pos[1]))
+    # print("q3: ", np.degrees(results_pos[2]))
+    # print("q4: ", np.degrees(results_pos[3]))
 
-# print("\nResults in degrees (negative q3):")
-# print("q1: ", np.degrees(results_neg[0]))
-# print("q2: ", np.degrees(results_neg[1]))
-# print("q3: ", np.degrees(results_neg[2]))
-# print("q4: ", np.degrees(results_neg[3]))
+    # print("\nResults in degrees (negative q3):")
+    # print("q1: ", np.degrees(results_neg[0]))
+    # print("q2: ", np.degrees(results_neg[1]))
+    # print("q3: ", np.degrees(results_neg[2]))
+    # print("q4: ", np.degrees(results_neg[3]))

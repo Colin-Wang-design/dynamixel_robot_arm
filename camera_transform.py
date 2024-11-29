@@ -86,10 +86,9 @@ def get_base_coordinate(translation_vector,DEVICENAME='/dev/tty.usbmodem1101', B
         T_4_0_matrix = T_4_0(theta1, theta2, theta3, theta4)
         T_5_0 = np.dot(T_4_0_matrix, T_5_4)
 
-        # # Extract camera matrix's last column (first three components)
-        # camera_position = T_5_0[:3, 3]
-        # camera_position[0] -= 10
-        
+        # Extract the current position of the stylus in the base frame
+        T_stylus_to_base = T_4_0_matrix[:3, 3].tolist()
+        T_stylus_to_base = [round(coord, 3) for coord in T_stylus_to_base]
         # Define the object's position in the camera frame
         T_object_to_camera = np.array(translation_vector)
         # Add homogeneous coordinate to the object vector
@@ -102,15 +101,41 @@ def get_base_coordinate(translation_vector,DEVICENAME='/dev/tty.usbmodem1101', B
         T_object_to_base = T_object_to_base_homogeneous[:3].tolist()
         # Round to three decimal places
         T_object_to_base = [round(coord, 3) for coord in T_object_to_base]
-        return T_object_to_base
+        return (T_stylus_to_base, T_object_to_base)
 
     finally:
         # Disable torque and close port
         for DXL_ID in DXL_IDS:
-            packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
+            packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_ENABLE)
         portHandler.closePort()
 
+def compute_stylus_trajectory(T_stylus_to_base, T_object_to_base, num_steps=10):
+    """
+    Compute a sequence of positions for the stylus to move toward the object.
+    
+    Parameters:
+        T_4_0_matrix (numpy.ndarray): Homogeneous transformation matrix of the stylus tip in the base frame.
+        T_object_to_base (list): Translation vector of the object in the base frame [x, y, z].
+        num_steps (int): Number of interpolation steps for the trajectory.
+    
+    Returns:
+        list: Sequence of transformation matrices representing the trajectory.
+    """
+    # Extract the current position of the stylus in the base frame
+    stylus_position_base = np.array(T_stylus_to_base)  # Stylus position [x, y, z]
+    target_position_base = np.array(T_object_to_base)  # Target position [x, y, z]
+    
+    # Generate intermediate positions using linear interpolation
+    positions = np.linspace(stylus_position_base, target_position_base, num_steps)
+    
+     # Convert to list of tuples (x, y, z)
+    trajectory = [tuple(pos) for pos in positions]
+    
+    return trajectory
+# Using for test functions above 
 if __name__ == "__main__":
     vector=[0.0,0.0,0.0]
-    translation_vector = get_base_coordinate(translation_vector=vector)
-    print("Camera translation:",translation_vector)
+    stylus_vector,object_vector = get_base_coordinate(translation_vector=vector)
+    object_vector = [211.066, 10.149, -19.628]
+    trajectory = compute_stylus_trajectory(stylus_vector,object_vector,num_steps=20)
+    print("Trajectory:",trajectory)

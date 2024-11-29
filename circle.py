@@ -14,7 +14,7 @@ ADDR_MX_PRESENT_POSITION = 36
 ADDR_MX_PUNCH = 48
 PROTOCOL_VERSION = 1.0
 DXL_IDS = [1,2,3,4]
-DEVICENAME = '/dev/tty.usbmodem11101'
+DEVICENAME = '/dev/tty.usbmodem1101'
 BAUDRATE = 1000000
 TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0
@@ -36,13 +36,13 @@ def angle_to_dynamixel_value(angle, min_angle=0, max_angle=300, resolution=1023)
     return int((angle - min_angle) * resolution / (max_angle - min_angle))
 
 # Load the sequence of moves from an Excel file
-wb = openpyxl.load_workbook('data/joint_angles_neg.xlsx') # _neg is elbow up configurations
+wb = openpyxl.load_workbook('joint_angles.xlsx') # _neg is elbow up configurations
 sheet = wb.active
 
 sequence_of_moves = []
 
 # Read every second row starting from the second row, and columns 3 to 6
-for i, row in enumerate(sheet.iter_rows(min_row=2, min_col=3, max_col=6, values_only=True)):
+for i, row in enumerate(sheet.iter_rows(min_row=2, min_col=2, max_col=5, values_only=True)):
     # Convert radians to degrees
     sequence_of_moves.append([math.degrees(value) for value in row])
 
@@ -100,6 +100,6 @@ for index, goal_positions in enumerate(sequence_of_moves):
 
 # Lock the position by enabling torque again
 for DXL_ID in DXL_IDS:
-    packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_ENABLE)
+    packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
 
 portHandler.closePort()
