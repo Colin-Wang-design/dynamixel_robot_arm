@@ -1,10 +1,6 @@
 import numpy as np
-# from mpl_toolkits.mplot3d import Axes3D
-# import matplotlib.pyplot as plt
-# import matplotlib.animation as animation
 from inverse_kinematics import calculate_joint_angles  # Assuming the IK script is named IK_2.py
 from camera_transform import get_base_coordinate, compute_stylus_trajectory
-# from robot_sim import calculate_positions  # Import the calculate_positions function
 import pandas as pd  # Import pandas for exporting to Excel
 
 vector=[0.0,0.0,0.0]
