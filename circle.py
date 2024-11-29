@@ -14,7 +14,7 @@ ADDR_MX_PRESENT_POSITION = 36
 ADDR_MX_PUNCH = 48
 PROTOCOL_VERSION = 1.0
 DXL_IDS = [1,2,3,4]
-DEVICENAME = '/dev/ttyACM0'
+DEVICENAME = '/dev/tty.usbmodem11101'
 BAUDRATE = 1000000
 TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0
@@ -51,8 +51,7 @@ print("Shape of the sequence of moves:", len(sequence_of_moves), len(sequence_of
 
 # Define the zero positions for each joint
 #zero_positions = [614, 205, 506, 810] #robot 9
-zero_positions = [503, 210, 506, 810] #robot 6
-
+zero_positions = [497, 203, 513, 815] #robot 6
 
 # Print the positions it will go through
 for index, goal_positions in enumerate(sequence_of_moves):

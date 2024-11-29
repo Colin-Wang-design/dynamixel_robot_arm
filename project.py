@@ -12,8 +12,8 @@ ADDR_MX_PRESENT_POSITION = 36
 ADDR_MX_PUNCH = 48
 PROTOCOL_VERSION = 1.0
 DXL_IDS = [1,2,3,4]
-ZERO_POSITIONS = [506, 202, 522, 826]  # Zero positions for each servo of robot 6
-DEVICENAME = '/dev/ttyACM0' # /dev/tty.usbmodem1301
+ZERO_POSITIONS = [506, 211, 508, 826]  # Zero positions for each servo of robot 6
+DEVICENAME = '/dev/tty.usbmodem1101' # /dev/tty.usbmodem1301  /dev/ttyACM0
 BAUDRATE = 1000000
 TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0
@@ -56,6 +56,9 @@ for i, DXL_ID in enumerate(DXL_IDS):
 
 for DXL_ID in DXL_IDS:
     packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
+
+# Close port
+portHandler.closePort()
     
 # Define T_4^0 as a function of given parameters
 def T_4_0(theta1, theta2, theta3, theta4):
@@ -69,9 +72,9 @@ def T_4_0(theta1, theta2, theta3, theta4):
     r22 = -np.sin(theta1) * np.sin(theta_sum)
     r32 = np.cos(theta_sum)
     
-    r14 = np.cos(theta1) * (93 * np.cos(theta2) + 93 * np.cos(theta2 + theta3) + 50 * np.cos(theta_sum))
-    r24 = np.sin(theta1) * (93 * np.cos(theta2) + 93 * np.cos(theta2 + theta3) + 50 * np.cos(theta_sum))
-    r34 = 50 + 93 * np.sin(theta2) + 93 * np.sin(theta2 + theta3) + 50 * np.sin(theta_sum)
+    r14 = np.cos(theta1) * (93 * np.cos(theta2) + 93 * np.cos(theta2 + theta3) +85 * np.cos(theta_sum))
+    r24 = np.sin(theta1) * (93 * np.cos(theta2) + 93 * np.cos(theta2 + theta3) +85 * np.cos(theta_sum))
+    r34 = 50 + 93 * np.sin(theta2) + 93 * np.sin(theta2 + theta3) + 85 * np.sin(theta_sum)
     
     return np.array([
         [r11, r12, np.sin(theta1), r14],
@@ -80,10 +83,10 @@ def T_4_0(theta1, theta2, theta3, theta4):
         [0, 0, 0, 1]
     ])
 
-# Define T_5^4
+# Define T_5^4 camera according to model stylus
 T_5_4 = np.array([
-    [1, 0, 0, -15],
-    [0, 1, 0, 45],
+    [1, 0, 0, -45],
+    [0, 1, 0, 38],
     [0, 0, 1, 0],
     [0, 0, 0, 1]
 ])
@@ -101,9 +104,11 @@ T_4_0_matrix = T_4_0(theta1, theta2, theta3, theta4)
 T_5_0 = np.dot(T_4_0_matrix, T_5_4)
 
 # Print the result
-print("T_4^0 Matrix:")
+print("T_40 Stylus Matrix:")
 for row in T_4_0_matrix:
     print(" ".join(f"{value:10.4f}" for value in row))
 
-# Close port
-portHandler.closePort()
+print("T_50 Camera Matrix:")
+for row in T_5_0:
+    print(" ".join(f"{value:10.4f}" for value in row))
+

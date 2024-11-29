@@ -3,9 +3,10 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
+from camera_transform import get_base_coordinate
 
 # Real-world diameter of the M&M in meters
-D = 0.0104 
+D = 0.014 
 
 # Print the camera Matrix
 # b = np.load('//home/depei/Robotics/dynamixel_robot_arm/camera_vision/bin/camera_0_calibration.npz')
@@ -65,8 +66,8 @@ def get_circles(img, debug=False):
     if debug:
         cv2.imshow("blurred", blurred)
 
-    min_radius = 30
-    max_radius = 35
+    min_radius = 35
+    max_radius = 46
 
     circles = cv2.HoughCircles(
         blurred,
@@ -146,8 +147,13 @@ def get_real_world_circles(circles):
                 useExtrinsicGuess=False
             )
             
-            res.append((object_points_3D, image_points_2D, rvec, tvec))
-    
+            # Flatten tvec to get x, y, z as a simple list
+            tvec_flat = 1000*tvec.flatten()
+            tvec_swapped = [tvec_flat[2], tvec_flat[1], tvec_flat[0]]  # Swap z (index 2) with x (index 0)
+            # Round to three decimal places
+            tvec_swapped = [round(coord, 3) for coord in tvec_swapped]
+
+            res.append((object_points_3D, image_points_2D, rvec, tvec_swapped))
     return res
 
  
@@ -183,7 +189,7 @@ def cleanup(cam_id = 0):
 
 if __name__ == "__main__":
     # Camera ID to read video from (numbered from 0)
-    camera_id = 3 # Linux = 0; Mac = 2
+    camera_id = 0 # Linux = 0; Mac = 2
     dev = open_camera(camera_id) # open the camera as a video capture device
  
     while True:
@@ -202,7 +208,10 @@ if __name__ == "__main__":
                 obj = get_real_world_circles(circles)
                 if obj is not None:
                     for o in obj:
-                        print(f"Circle at image: ({o[1][0][0]}, {o[1][0][1]}) -> Translation Vector: {o[3]*1000}")
+                        # Object to base frame trans-vector
+                        translation_vector = get_base_coordinate(translation_vector=o[3])
+                        print(f"Circle: ({o[1][0][0]}, {o[1][0][1]}) -> T-Vector: {translation_vector}")#    
+                    print(" ")# Gap between every loop                         
                 else:
                     print("failed to get real world circles")
             else:

@@ -15,7 +15,7 @@ def calculate_joint_angles(x0, y0, z0, gamma):
     a1 = 50
     a2 = 93
     a3 = 93
-    a4 = 50
+    a4 = 85
 
     # Calculate q1 based on the value of y0
     epsilon = 1e-9  # Small value to avoid division by zero
