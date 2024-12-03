@@ -2,29 +2,47 @@ from dynamixel_sdk import *
 import openpyxl
 import time
 import math
+import numpy as np
+from robot_sim.IK_2 import calculate_joint_angles  # Import the inverse kinematics function
 
+# Constants
 ADDR_MX_TORQUE_ENABLE = 24
+ADDR_MX_CW_COMPLIANCE_MARGIN = 26
+ADDR_MX_CCW_COMPLIANCE_MARGIN = 27
+ADDR_MX_CW_COMPLIANCE_SLOPE = 28
+ADDR_MX_CCW_COMPLIANCE_SLOPE = 29
 ADDR_MX_GOAL_POSITION = 30
+ADDR_MX_MOVING_SPEED = 32
 ADDR_MX_PRESENT_POSITION = 36
+ADDR_MX_PUNCH = 48
 PROTOCOL_VERSION = 1.0
 DXL_IDS = [1, 2, 3, 4]
-DEVICENAME = '/dev/tty.usbmodem1423101'
+DEVICENAME = '/dev/tty.usbmodem1431401'
 BAUDRATE = 1000000
 TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0
 
 portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
+portHandler.openPort()
+portHandler.setBaudRate(BAUDRATE)
 
-# Open port
+for DXL_ID in DXL_IDS:
+    packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_ENABLE)
+    packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_MX_CW_COMPLIANCE_MARGIN, 0)
+    packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_MX_CCW_COMPLIANCE_MARGIN, 0)
+    packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_CW_COMPLIANCE_SLOPE, 32)
+    packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_CCW_COMPLIANCE_SLOPE, 32)
+    packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_MX_MOVING_SPEED, 50)
+
+# Open port and set baudrate
 if not portHandler.openPort():
     print("Failed to open the port")
     quit()
-
-# Set port baudrate
 if not portHandler.setBaudRate(BAUDRATE):
     print("Failed to change the baudrate")
     quit()
+print("Port opened and baudrate set successfully")
 
 # Enable torque for all motors
 for DXL_ID in DXL_IDS:
@@ -33,6 +51,7 @@ for DXL_ID in DXL_IDS:
         print(f"[ID:{DXL_ID}] %s" % packetHandler.getTxRxResult(dxl_comm_result))
     elif dxl_error != 0:
         print(f"[ID:{DXL_ID}] %s" % packetHandler.getRxPacketError(dxl_error))
+print("Torque enabled for all motors")
 
 # Function to convert angles to Dynamixel values
 def angle_to_dynamixel_value(angle, min_angle=0, max_angle=300, resolution=1023):
@@ -48,57 +67,49 @@ def check_zero_config(zero_positions):
             print(f"[ID:{DXL_ID}] %s" % packetHandler.getTxRxResult(dxl_comm_result))
         elif dxl_error != 0:
             print(f"[ID:{DXL_ID}] %s" % packetHandler.getRxPacketError(dxl_error))
-    time.sleep(5)  # Wait for 5 seconds to ensure the robot reaches the zero configuration
-
-# Load the sequence of moves from an Excel file
-wb = openpyxl.load_workbook('data/test.xlsx')  # _neg is elbow up configurations
-sheet = wb.active
-
-sequence_of_moves = []
-
-# Read every second row starting from the second row, and columns 3 to 6
-for i, row in enumerate(sheet.iter_rows(min_row=2, min_col=3, max_col=6, values_only=True)):
-    # Convert radians to degrees
-    sequence_of_moves.append([math.degrees(value) for value in row])
-
-# Print the shape of the sequence of moves
-print("Shape of the sequence of moves:", len(sequence_of_moves), len(sequence_of_moves[0]))
+    time.sleep(8)  # Wait for 8 seconds to ensure the robot reaches the zero configuration
 
 # Define the zero positions for each joint
-zero_positions = [503, 210, 506, 530]  # robot 6
+zero_positions = [503, 210, 506, 500]  # robot 6
 
 # Check zero configuration
 check_zero_config(zero_positions)
 
-# Print the positions it will go through
-for index, goal_positions in enumerate(sequence_of_moves):
-    displaced_positions = []
-    for i, goal_position in enumerate(goal_positions):
-        displaced_position = zero_positions[i] + int(angle_to_dynamixel_value(goal_position))
-        displaced_positions.append(displaced_position)
-    print(f"Config {index + 1}: {displaced_positions}")
+# Placeholder for the desired inspection position coordinates and angle
+inspection_position = [150, 0, 200]  # Replace with actual coordinates
+gamma_deg = -90  # Replace with actual angle in degrees
+gamma = np.deg2rad(gamma_deg)
 
-# Perform the sequence of moves
-for index, goal_positions in enumerate(sequence_of_moves):
-    displaced_positions = []
-    for i, goal_position in enumerate(goal_positions):
-        displaced_position = zero_positions[i] + int(angle_to_dynamixel_value(goal_position))
-        displaced_positions.append(displaced_position)
-        dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_IDS[i], ADDR_MX_GOAL_POSITION, displaced_position)
-        if dxl_comm_result != COMM_SUCCESS:
-            print(f"[ID:{DXL_IDS[i]}] %s" % packetHandler.getTxRxResult(dxl_comm_result))
-        elif dxl_error != 0:
-            print(f"[ID:{DXL_IDS[i]}] %s" % packetHandler.getRxPacketError(dxl_error))
-    print(f"Moving to Config {index + 1}: {displaced_positions}")
-    time.sleep(0.3)  # Adjust the sleep time as needed
+# Calculate the joint angles using inverse kinematics
+results_pos, results_neg = calculate_joint_angles(inspection_position[0], inspection_position[1], inspection_position[2], gamma)
+print("results_pos: ", results_pos)
+print("results_neg: ", results_neg)
 
-# Disable torque for all motors
-for DXL_ID in DXL_IDS:
-    dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_ENABLE)
+# Choose one of the solutions (positive q3 in this case)
+joint_angles = results_pos
+
+# Convert joint angles to Dynamixel values and add to zero positions
+goal_positions = [zero_positions[i] + angle_to_dynamixel_value(np.degrees(joint_angles[i])) for i in range(4)]
+print(f"Moving to inspection position: {goal_positions}")
+
+# Move to the inspection position
+for i, DXL_ID in enumerate(DXL_IDS):
+    dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_MX_GOAL_POSITION, goal_positions[i])
     if dxl_comm_result != COMM_SUCCESS:
         print(f"[ID:{DXL_ID}] %s" % packetHandler.getTxRxResult(dxl_comm_result))
     elif dxl_error != 0:
         print(f"[ID:{DXL_ID}] %s" % packetHandler.getRxPacketError(dxl_error))
+time.sleep(5)  # Wait for 5 seconds to ensure the robot reaches the inspection position
+
+# Disable torque for all motors
+for DXL_ID in DXL_IDS:
+    dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
+    if dxl_comm_result != COMM_SUCCESS:
+        print(f"[ID:{DXL_ID}] %s" % packetHandler.getTxRxResult(dxl_comm_result))
+    elif dxl_error != 0:
+        print(f"[ID:{DXL_ID}] %s" % packetHandler.getRxPacketError(dxl_error))
+print("Torque disabled for all motors")
 
 # Close port
 portHandler.closePort()
+print("Port closed")

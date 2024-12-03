@@ -1,0 +1,63 @@
+import numpy as np
+a1 = 50
+a2 = 93
+a3 = 93
+a4 = 50
+gamma_deg = -90
+gamma = np.deg2rad(gamma_deg)
+
+
+x0, y0, z0 = 225.5577805924497, -100.0, 94.71284531985262
+
+q3_in = ((np.sqrt(x0**2+y0**2)-a4*np.cos(gamma))**2 + (z0-a1-a4*np.sin(gamma))**2 -(a2**2+a3**2)) / (2*a2*a3)
+
+print(q3_in)
+
+
+def T05_matrix(q1, q2, q3, q4):
+    # Define the transformation matrices
+    T_1_0 = np.array([
+        [np.cos(q1), 0, np.sin(q1), 0],
+        [np.sin(q1), 0, -np.cos(q1), 0],
+        [0, 1, 0, 50],
+        [0, 0, 0, 1]
+    ])
+
+    T_2_1 = np.array([
+        [np.cos(q2), -np.sin(q2), 0, 93 * np.cos(q2)],
+        [np.sin(q2), np.cos(q2), 0, 93 * np.sin(q2)],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ])
+
+    T_3_2 = np.array([
+        [np.cos(q3), -np.sin(q3), 0, 93 * np.cos(q3)],
+        [np.sin(q3), np.cos(q3), 0, 93 * np.sin(q3)],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ])
+
+    T_4_3 = np.array([
+        [np.cos(q4), -np.sin(q4), 0, 50 * np.cos(q4)],
+        [np.sin(q4), np.cos(q4), 0, 50 * np.sin(q4)],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ])
+
+    T_5_4 = np.array([
+        [1, 0, 0, -15],
+        [0, 1, 0, 45],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ])
+
+    # Calculate the overall transformation matrix
+    T_5_0 = T_1_0 @ T_2_1 @ T_3_2 @ T_4_3 @ T_5_4
+    return T_5_0
+
+qs = [0, 0, 0, 0]
+T_5_0 = T05_matrix(qs[0], qs[1], qs[2], qs[3])
+pos_homogeneous = np.array([100, 0, 0, 1])
+pos_robot_frame =  T_5_0 @ pos_homogeneous
+
+print(pos_robot_frame)

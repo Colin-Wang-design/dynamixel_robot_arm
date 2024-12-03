@@ -29,7 +29,7 @@ def calculate_joint_angles(x0, y0, z0, gamma):
     q1 = wrap_angle(q1)
 
     q3_in = ((np.sqrt(x0**2+y0**2)-a4*np.cos(gamma))**2 + (z0-a1-a4*np.sin(gamma))**2 -(a2**2+a3**2)) / (2*a2*a3)
-    # print("q3_in: ", q3_in)
+    print("q3_in: ", q3_in)
     # # in degrees
     # print("q3_in in degrees: ", np.degrees(q3_in))
     
@@ -48,11 +48,13 @@ def calculate_joint_angles(x0, y0, z0, gamma):
 
         q2 = np.arctan2(q2_in1, q2_in2) - np.arctan2(q2_in3, q2_in4)
         q4 = gamma - q2 - q3
+        print("q4: ", q4)
         return q2, q4
 
     q2_pos, q4_pos = calculate_q2_q4(q3_pos)
     q2_neg, q4_neg = calculate_q2_q4(q3_neg)
-
+    print("inside calculate_joint_angles")
+    print("(q1, q2_neg, q3_neg, q4_neg): ", (q1, q2_neg, q3_neg, q4_neg))
     return (q1, q2_pos, q3_pos, q4_pos), (q1, q2_neg, q3_neg, q4_neg)
 
 # Test the function with sample inputs (user can modify the values)

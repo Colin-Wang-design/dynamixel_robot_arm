@@ -3,7 +3,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import os
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from IK_2 import calculate_joint_angles  # Assuming the IK script is named IK_2.py
+from IK_2 import calculate_joint_angles  
 from robot_sim import calculate_positions  # Import the calculate_positions function
 import pandas as pd  # Import pandas for exporting to Excel
 
@@ -59,7 +59,7 @@ df = pd.DataFrame(data, columns=['Point', 'Solution', 'q1', 'q2', 'q3', 'q4'])
 
 # Export to Excel
 output_dir = 'tests for IK'
-output_path = os.path.join(output_dir, 'joint_angles.xlsx')
+output_path = os.path.join(output_dir, 'joint_angles_today.xlsx')
 df.to_excel(output_path, index=False)
 
 # Print the joint angles for each point
